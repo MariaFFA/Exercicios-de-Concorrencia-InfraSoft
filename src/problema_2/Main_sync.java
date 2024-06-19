@@ -3,7 +3,6 @@ package src.problema_2;
 public class Main_sync {
 
     public static class FioThread extends Thread {
-    //        public int permit;
         public String nomeCarro;
 
         public FioThread(String nomeCarro) {
