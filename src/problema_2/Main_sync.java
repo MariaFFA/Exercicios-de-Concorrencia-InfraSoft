@@ -1,6 +1,6 @@
 package src.problema_2;
 
-public class Main {
+public class Main_sync {
 
     public static class FioThread extends Thread {
     //        public int permit;
