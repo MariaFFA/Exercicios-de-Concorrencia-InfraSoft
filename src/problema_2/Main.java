@@ -1,4 +1,4 @@
-package problema_2;
+package src.problema_2;
 
 public class Main {
 
@@ -31,24 +31,51 @@ public class Main {
         FioThread Carro8 = new FioThread("Carro 8");
 
         Carro1.start();
-        Carro2.start();
-        Carro3.start();
-        Carro4.start();
-        Carro5.start();
-        Carro6.start();
-        Carro7.start();
-        Carro8.start();
-
         Carro1.join();
         System.out.println("Carro 1 Atravessou");
+
+        System.out.println("======================");
+
+        Carro2.start();
         Carro2.join();
         System.out.println("Carro 2 Atravessou");
+
+        System.out.println("======================");
+
+        Carro3.start();
         Carro3.join();
+        System.out.println("Carro 3 Atravessou");
+
+        System.out.println("======================");
+
+        Carro4.start();
         Carro4.join();
+        System.out.println("Carro 4 Atravessou");
+
+        System.out.println("======================");
+
+        Carro5.start();
         Carro5.join();
+        System.out.println("Carro 5 Atravessou");
+
+        System.out.println("======================");
+
+        Carro6.start();
         Carro6.join();
+        System.out.println("Carro 6 Atravessou");
+
+        System.out.println("======================");
+
+        Carro7.start();
         Carro7.join();
+        System.out.println("Carro 7 Atravessou");
+
+        System.out.println("======================");
+
+        Carro8.start();
         Carro8.join();
+        System.out.println("Carro 8 Atravessou");
+
 
     }
 }
