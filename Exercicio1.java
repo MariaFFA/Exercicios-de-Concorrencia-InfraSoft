@@ -15,6 +15,7 @@ public class Exercicio1 {
             lock.lock();
             try {
                 saldo += valor;
+                System.out.println("+ " + valor + " = " + saldo);
             }finally{
                 lock.unlock();
             }
@@ -26,28 +27,22 @@ public class Exercicio1 {
             try {
                 if (valor <= saldo) {
                     saldo -= valor;
+                    System.out.println("- " + valor + " = " + saldo);
                 } else {
-                    System.out.println("Saldo Insuficiente");
+                    System.out.println(valor + " é maior que " + saldo);
+                    System.out.println("Saldo Insuficiente: operação anulada");
                 }
             }finally{
                 lock.unlock();
             }
         }
 
-        public void getSaldo() throws InterruptedException{
-            lock.lock();
-            try {
-                System.out.println(saldo);
-            }finally{
-                lock.unlock();
-            }
-        }
     }
 
     public static class Operacao implements Runnable{
-        private ContaCompartilhada conta;
-        private int valor;
-        private String operation;
+        private final ContaCompartilhada conta;
+        private final int valor;
+        private final String operation;
 
         public Operacao(ContaCompartilhada conta, int valor, String operation){
             this.conta = conta;
@@ -62,7 +57,6 @@ public class Exercicio1 {
                 else if (operation.equals("saque")){
                     conta.saque(valor);
                 }
-                conta.getSaldo();
             }catch (InterruptedException e){
                 throw new RuntimeException(e);
             }
@@ -70,8 +64,10 @@ public class Exercicio1 {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         ContaCompartilhada conta = new ContaCompartilhada(0);
+
+        System.out.println("Saldo Inicial: " + conta.saldo);
 
         Operacao operacao1 = new Operacao(conta, 100, "deposito");
         Operacao operacao2 = new Operacao(conta, 50, "saque");
@@ -96,6 +92,14 @@ public class Exercicio1 {
         Thread_Operacao5.start();
         Thread_Operacao6.start();
 
-        ;
+        Thread_Operacao1.join();
+        Thread_Operacao2.join();
+        Thread_Operacao3.join();
+        Thread_Operacao4.join();
+        Thread_Operacao5.join();
+        Thread_Operacao6.join();
+
+        System.out.println("Saldo Final: " + conta.saldo);
+
     }
 }
