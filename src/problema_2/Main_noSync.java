@@ -2,49 +2,60 @@ package src.problema_2;
 
 public class Main_noSync {
 
-    public static class FioThread extends Thread{
+    public static class Ponte{
+        public void atravesaPonte(String nomeCarro) throws InterruptedException{
+            System.out.println(nomeCarro +" tentando atravessar ponte...");
+            System.out.println();
+
+            try{
+                System.out.println(nomeCarro+ " atravessou!");
+            }
+            finally {
+                Thread.sleep(1500);
+            }
+        }
+
+    }
+
+    public static class Carro implements Runnable{
+        private final Ponte carro;
         public String nomeCarro;
 
-        public FioThread(String nomeCarro){
+        public Carro(Ponte carro, String nomeCarro){
+            this.carro = carro;
             this.nomeCarro = nomeCarro;
         }
 
         public void run(){
-            System.out.println(nomeCarro+ " tentando atravessar a ponte..");
-            System.out.println("...");
-            System.out.println(nomeCarro+ " atravessou a ponte.");
-            System.out.println("============================");
-
             try{
-                Thread.sleep(3000);
+                carro.atravesaPonte(nomeCarro);
             }
-            catch (InterruptedException ignored){
-                throw new RuntimeException(ignored);
+            catch (InterruptedException e){
+                throw new RuntimeException(e);
             }
-
         }
     }
 
-    public static void main(String[] args) {
-        FioThread Carro1 = new FioThread("Carro 1");
-        FioThread Carro2 = new FioThread("Carro 2");
-        FioThread Carro3 = new FioThread("Carro 3");
-        FioThread Carro4 = new FioThread("Carro 4");
-        FioThread Carro5 = new FioThread("Carro 5");
-        FioThread Carro6 = new FioThread("Carro 6");
-        FioThread Carro7 = new FioThread("Carro 7");
-        FioThread Carro8 = new FioThread("Carro 8");
 
-        Carro1.start();
-        Carro2.start();
-        Carro3.start();
-        Carro4.start();
-        Carro5.start();
-        Carro6.start();
-        Carro7.start();
-        Carro8.start();
+    public static void main(String[] args) throws InterruptedException {
 
+        Ponte ponte = new Ponte();
+
+        Carro carroA = new Carro(ponte, "Carro A");
+        Carro carroB = new Carro(ponte, "Carro B");
+        Carro carroC = new Carro(ponte, "Carro C");
+        Carro carroD = new Carro(ponte, "Carro D");
+
+        Thread t1 = new Thread(carroA);
+        Thread t2 = new Thread(carroB);
+        Thread t3 = new Thread(carroC);
+        Thread t4 = new Thread(carroD);
+
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        
     }
-
 }
 
