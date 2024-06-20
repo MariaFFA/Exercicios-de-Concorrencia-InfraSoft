@@ -1,60 +1,68 @@
 package src.problema_2;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Main_sync {
 
-    public static class FioThread extends Thread {
+    public static class Ponte{
+        
+        private final Lock lock = new ReentrantLock();
+
+        public void atravesaPonte(String nomeCarro) throws InterruptedException{
+            System.out.println(nomeCarro +" tentando atravessar ponte...");
+            System.out.println();
+            lock.lock();
+
+            try{
+                System.out.println(nomeCarro+ " atravessou!");
+            }
+            finally {
+                Thread.sleep(1500);
+                lock.unlock();
+            }
+        }
+
+    }
+
+    public static class Carro implements Runnable{
+        private final Ponte carro;
         public String nomeCarro;
 
-        public FioThread(String nomeCarro) {
+        public Carro(Ponte carro, String nomeCarro){
+            this.carro = carro;
             this.nomeCarro = nomeCarro;
         }
 
-        public void run() {
-            System.out.println(nomeCarro+ " tentando atravessar a ponte...");
-            System.out.println("...");
-            System.out.println(nomeCarro+ " atravessou a ponte.");
-            System.out.println("======================");
-            try {
-                Thread.sleep(1);
+        public void run(){
+            try{
+                carro.atravesaPonte(nomeCarro);
             }
-            catch (InterruptedException ignored){}
+            catch (InterruptedException e){
+                throw new RuntimeException(e);
+            }
         }
     }
 
+
     public static void main(String[] args) throws InterruptedException {
 
-        FioThread Carro1 = new FioThread("Carro 1");
-        FioThread Carro2 = new FioThread("Carro 2");
-        FioThread Carro3 = new FioThread("Carro 3");
-        FioThread Carro4 = new FioThread("Carro 4");
-        FioThread Carro5 = new FioThread("Carro 5");
-        FioThread Carro6 = new FioThread("Carro 6");
-        FioThread Carro7 = new FioThread("Carro 7");
-        FioThread Carro8 = new FioThread("Carro 8");
+        Ponte ponte = new Ponte();
 
-        Carro1.start();
-        Carro1.join();
+        Carro carroA = new Carro(ponte,"Carro A");
+        Carro carroB = new Carro(ponte,"Carro B");
+        Carro carroC = new Carro(ponte,"Carro C");
+        Carro carroD = new Carro(ponte,"Carro D");
 
-        Carro2.start();
-        Carro2.join();
+        Thread t1 = new Thread(carroA);
+        Thread t2 = new Thread(carroB);
+        Thread t3 = new Thread(carroC);
+        Thread t4 = new Thread(carroD);
 
-        Carro3.start();
-        Carro3.join();
-
-        Carro4.start();
-        Carro4.join();
-
-        Carro5.start();
-        Carro5.join();
-
-        Carro6.start();
-        Carro6.join();
-
-        Carro7.start();
-        Carro7.join();
-
-        Carro8.start();
-        Carro8.join();
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
 
     }
 }
