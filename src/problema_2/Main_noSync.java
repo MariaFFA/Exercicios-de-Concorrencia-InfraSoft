@@ -3,18 +3,21 @@ package src.problema_2;
 public class Main_noSync {
 
     public static class Ponte{
+        private int ocupacaoPonte = 0;
+
         public void atravesaPonte(String nomeCarro) throws InterruptedException{
             System.out.println(nomeCarro +" tentando atravessar ponte...");
             System.out.println();
+            ocupacaoPonte += 1;
 
-            try{
+            if(ocupacaoPonte == 1){
                 System.out.println(nomeCarro+ " atravessou!");
+                ocupacaoPonte -= 1;
             }
-            finally {
-                Thread.sleep(1500);
+            else if(ocupacaoPonte > 1){
+                System.out.println("O carro "+nomeCarro+" não conseguiu atravessar, ponte ocupada!");
             }
         }
-
     }
 
     public static class Carro implements Runnable{
@@ -41,10 +44,13 @@ public class Main_noSync {
 
         Ponte ponte = new Ponte();
 
+
+
         Carro carroA = new Carro(ponte, "Carro A");
         Carro carroB = new Carro(ponte, "Carro B");
         Carro carroC = new Carro(ponte, "Carro C");
         Carro carroD = new Carro(ponte, "Carro D");
+
 
         Thread t1 = new Thread(carroA);
         Thread t2 = new Thread(carroB);
@@ -55,7 +61,6 @@ public class Main_noSync {
         t2.start();
         t3.start();
         t4.start();
-        
+
     }
 }
-
