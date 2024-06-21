@@ -10,11 +10,11 @@ public class Main_noSync {
             System.out.println();
             ocupacaoPonte += 1;
 
-            if(ocupacaoPonte == 1){
+            if(ocupacaoPonte <= 1){
                 System.out.println(nomeCarro+ " atravessou!");
                 ocupacaoPonte -= 1;
             }
-            else if(ocupacaoPonte > 1){
+            else {
                 System.out.println("O carro "+nomeCarro+" não conseguiu atravessar, ponte ocupada!");
             }
         }
