@@ -30,18 +30,18 @@ public class Main {
                 barbeiroDisponivel.release(); //Permitindo que o barbeiro trabalhe
 
 
-            }else if(qtdCadeiras == qtdCadeirasInicial){
-                barbeiroDormindo.acquire();
-                System.out.println("Barbeiro dormindo");
-                Thread.sleep(1500);
-                barbeiroDormindo.release();
-            }
-
-            else{
+            }else{
                 System.out.println(nomeCliente +" não foi atendido, barbearia cheia!");
                 Thread.sleep(1000); // Simulação do tempo do corte
                 qtdCadeiras ++;
                 barbeiroDisponivel.release();
+            }
+
+            if(qtdCadeiras == qtdCadeirasInicial){
+                barbeiroDormindo.acquire();
+                System.out.println("Barbeiro dormindo");
+                Thread.sleep(1500);
+                barbeiroDormindo.release();
             }
         }
     }
