@@ -24,7 +24,6 @@ public class Main {
 
                 qtdCadeiras --;
                 System.out.println(nomeCliente + " sendo atendido.");
-                System.out.println("Cadeiras disponíveis: " + qtdCadeiras);
 
                 System.out.println();
 
