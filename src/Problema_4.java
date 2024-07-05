@@ -1,103 +1,66 @@
 package src;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Problema_4 {
-    public static class ContaCompartilhada {
+    // Até 3 cadeiras simultaneamente
+    private static final Semaphore chairs = new Semaphore(3);
+
+    // Para saber se a mesa está disponível para sentar
+    public static class Mesa {
         private boolean cheio;
-        private boolean naoSentou;
-        private int cadeiras;
+        private final Lock lock = new ReentrantLock();
 
-        public final Lock lock = new ReentrantLock();
-
-        public ContaCompartilhada() {
+        public Mesa() {
             this.cheio = false;
         }
+    }
 
-        public void chegou() throws InterruptedException {
-                lock.lock();
-                if (!cheio ) {
-                    try {
-                        cadeiras += 1;
-                        System.out.println("Cadeiras ocupadas " + cadeiras);
+    // Cada Pessoa
+    static class Person implements Runnable {
+        private final int id;
+        private final Mesa conta;
 
-
-                    } finally {
-                        if (cadeiras == 3) {
-                            cheio = true;
-                        }
-                        lock.unlock();
-                        Thread.sleep(600);
-                        lock.lock();
-                        cadeiras -= 1;
-                        System.out.println("Cadeiras ocupadas " + cadeiras);
-                    }
-                }
-                Operacao.sentou = true;
-                lock.unlock();
-
-
+        public Person(int id, Mesa conta) {
+            this.id = id;
+            this.conta = conta;
         }
 
-        public void saiu() throws InterruptedException {
-            lock.lock();
+        public void run() {
             try {
-                cadeiras -= 1;
-                System.out.println("Cadeiras ocupadas " + cadeiras);
+                // Tenta sentar
+                chairs.acquire();
+                System.out.println("Person " + id + " occupies a chair.");
 
-            } finally {
-                if (cadeiras == 0) {
-                    cheio = false;
+                // Dá um tempo para comer
+                Thread.sleep(1000);
+
+                // Se esteve cheio, só sai todos juntos
+                if (chairs.availablePermits() == 0) {
+                    conta.cheio = true;
+                    Thread.sleep(10);
+                    conta.cheio = false;
                 }
-                lock.unlock();
-            }
-
-        }
-
-        public void isCheio() throws InterruptedException {
-            lock.lock();
-            if (!cheio) {
-                lock.unlock();
-            }
-
-        }
-
-        public static class Operacao implements Runnable {
-            private final ContaCompartilhada conta;
-            private static boolean sentou;
-            private int numero;
-
-            public Operacao(ContaCompartilhada conta) {
-                this.conta = conta;
-                this.sentou = false;
-            }
-
-            public void run() {
-                while (!sentou) {
-                    try {
-                        conta.chegou();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                while (conta.cheio) {
+                    Thread.sleep(10);
                 }
-                sentou = false;
+                // Libera a cadeira
+                System.out.println("Person " + id + " leaves the chair.");
+                chairs.release();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
+    }
 
-        public static void main(String[] args) throws InterruptedException {
-            ContaCompartilhada conta = new ContaCompartilhada();
-            List<Integer> fila = new ArrayList<>();
-            System.out.println("Saldo Inicial: " + conta.cheio);
-            Operacao operacao = new Operacao(conta);
-            for (int i = 0; i < 5; i++) {
-                Thread tOperacao = new Thread(operacao);
-                fila.add(i, tOperacao.getPriority());
-                tOperacao.start();
-            }
-
+    public static void main(String[] args) throws InterruptedException {
+        Mesa conta = new Mesa();
+        // Criando as pessoas
+        for (int i = 1; i <= 10; i++) {
+            Thread person = new Thread(new Person(i, conta));
+            person.start();
         }
     }
 }
