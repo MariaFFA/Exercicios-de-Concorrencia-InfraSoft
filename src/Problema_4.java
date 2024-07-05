@@ -17,21 +17,20 @@ public class Problema_4 {
             this.lugares = 0;
         }
 
+        // Adiciona um lugar
         public void addLugar() throws InterruptedException {
             lock.lock();
             try {
                 lugares += 1;
-//                System.out.println("Lugares = " + lugares);
             }finally{
                 lock.unlock();
             }
         }
-
+        // Remove um lugar
         public void remLugar() throws InterruptedException {
             lock.lock();
             try {
                 lugares -= 1;
-//                System.out.println("Lugares = " + lugares);
             }finally{
                 lock.unlock();
             }
@@ -49,11 +48,9 @@ public class Problema_4 {
 
     // Cada Pessoa
     static class Person implements Runnable {
-        private final int id;
         private final Mesa conta;
 
-        public Person(int id, Mesa conta) {
-            this.id = id;
+        public Person( Mesa conta) {
             this.conta = conta;
         }
 
@@ -66,7 +63,7 @@ public class Problema_4 {
 
                 // Dá um tempo para comer
                 Thread.sleep(600);
-                // Se esteve cheio, só sai todos juntos
+                // Se estiver cheio, só saem todos juntos
                 if (chairs.availablePermits() == 0) {
                     Thread.sleep(600);
                     if (conta.getLugar() == 5) {
@@ -97,11 +94,11 @@ public class Problema_4 {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
         Mesa conta = new Mesa();
         // Criando as pessoas
         for (int i = 1; i <= 14; i++) {
-            Thread person = new Thread(new Person(i, conta));
+            Thread person = new Thread(new Person(conta));
             person.start();
         }
     }
