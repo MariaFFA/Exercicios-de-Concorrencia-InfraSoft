@@ -9,6 +9,7 @@ public class Main_noSync {
             System.out.println(nomeCarro +" tentando atravessar ponte...");
             System.out.println();
             ocupacaoPonte += 1;
+            Thread.sleep(50);
 
             if(ocupacaoPonte <= 1){
                 System.out.println(nomeCarro+ " atravessou!");
