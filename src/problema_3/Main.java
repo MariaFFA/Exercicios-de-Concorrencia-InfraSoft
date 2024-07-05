@@ -38,10 +38,10 @@ public class Main {
             }
 
             else{
+                System.out.println(nomeCliente +" não foi atendido, barbearia cheia!");
                 Thread.sleep(1000); // Simulação do tempo do corte
                 qtdCadeiras ++;
                 barbeiroDisponivel.release();
-                System.out.println(nomeCliente +" não foi atendido, barbearia cheia!");
             }
         }
     }
