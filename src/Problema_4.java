@@ -5,16 +5,45 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Problema_4 {
-    // Até 3 cadeiras simultaneamente
-    private static final Semaphore chairs = new Semaphore(3);
+    // Até 5 cadeiras simultaneamente
+    private static final Semaphore chairs = new Semaphore(5);
 
     // Para saber se a mesa está disponível para sentar
     public static class Mesa {
-        private boolean cheio;
+        private int lugares;
         private final Lock lock = new ReentrantLock();
 
         public Mesa() {
-            this.cheio = false;
+            this.lugares = 0;
+        }
+
+        public void addLugar() throws InterruptedException {
+            lock.lock();
+            try {
+                lugares += 1;
+//                System.out.println("Lugares = " + lugares);
+            }finally{
+                lock.unlock();
+            }
+        }
+
+        public void remLugar() throws InterruptedException {
+            lock.lock();
+            try {
+                lugares -= 1;
+//                System.out.println("Lugares = " + lugares);
+            }finally{
+                lock.unlock();
+            }
+        }
+
+        public int getLugar() throws InterruptedException {
+            lock.lock();
+            try {
+                return lugares;
+            }finally{
+                lock.unlock();
+            }
         }
     }
 
@@ -32,23 +61,36 @@ public class Problema_4 {
             try {
                 // Tenta sentar
                 chairs.acquire();
-                System.out.println("Person " + id + " occupies a chair.");
+                System.out.println("Occupies a chair.");
+                conta.addLugar();
 
                 // Dá um tempo para comer
-                Thread.sleep(1000);
-
+                Thread.sleep(600);
                 // Se esteve cheio, só sai todos juntos
                 if (chairs.availablePermits() == 0) {
-                    conta.cheio = true;
-                    Thread.sleep(10);
-                    conta.cheio = false;
+                    Thread.sleep(600);
+                    if (conta.getLugar() == 5) {
+                        conta.remLugar();
+                        conta.remLugar();
+                        conta.remLugar();
+                        conta.remLugar();
+                        conta.remLugar();
+
+                        System.out.println("Leaves 5 chairs.");
+                        chairs.release();
+                        chairs.release();
+                        chairs.release();
+                        chairs.release();
+                        chairs.release();
+
+                    }
+
+                }else {
+                    // Libera a cadeira
+                    System.out.println("Leaves a chair.");
+                    conta.remLugar();
+                    chairs.release();
                 }
-                while (conta.cheio) {
-                    Thread.sleep(10);
-                }
-                // Libera a cadeira
-                System.out.println("Person " + id + " leaves the chair.");
-                chairs.release();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -58,7 +100,7 @@ public class Problema_4 {
     public static void main(String[] args) throws InterruptedException {
         Mesa conta = new Mesa();
         // Criando as pessoas
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 14; i++) {
             Thread person = new Thread(new Person(i, conta));
             person.start();
         }
