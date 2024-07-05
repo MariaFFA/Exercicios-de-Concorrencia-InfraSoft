@@ -1,83 +1,75 @@
 package src.problema_3;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 public class Main {
 
-    public static class Barbeiro{
-        private int ocupacaoBarbearia = 0;
+    public static class Barbearia{
+        private int qtdCadeiras;
+        private final int qtdCadeirasInicial;
+        private final Semaphore barbeiroDisponivel;
+        private final Semaphore barbeiroDormindo;
 
-        private final Lock lock = new ReentrantLock();
+        public Barbearia(int qtdCadeiras){
+            this.qtdCadeiras = qtdCadeiras;
+            this.qtdCadeirasInicial = qtdCadeiras;
+            barbeiroDisponivel = new Semaphore(1);
+            barbeiroDormindo = new Semaphore(0);
+        }
 
-        private void atendeCliente(String nomeCliente) throws InterruptedException{
+        public void novoCliente(String nomeCliente) throws InterruptedException{
+            barbeiroDisponivel.acquire(); //Requisitando acesso à barbearia
 
-            int capacidadeBarbearia = 3;
-            System.out.println(nomeCliente+ " chega a barbearia.");
-            System.out.println();
+            if(qtdCadeiras > 0){
 
-            while(ocupacaoBarbearia < capacidadeBarbearia){
-                ocupacaoBarbearia ++;
+                qtdCadeiras --;
+                System.out.println(nomeCliente + " sendo atendido.");
+                System.out.println("Cadeiras disponíveis: " + qtdCadeiras);
+
+                System.out.println();
+
+                barbeiroDisponivel.release(); //Permitindo que o barbeiro trabalhe
+
+
+            }else if(qtdCadeiras == qtdCadeirasInicial){
+                barbeiroDormindo.acquire();
+                System.out.println("Barbeiro dormindo");
+                Thread.sleep(1500);
+                barbeiroDormindo.release();
             }
 
-            if(ocupacaoBarbearia == capacidadeBarbearia) {
-                //Cliente é posto pra dormir
-                lock.lock();
-
-                try {
-                    System.out.println(nomeCliente+ " atendido!");
-                    ocupacaoBarbearia --;
-                }
-                finally {
-                    Thread.sleep(1500);
-                    lock.unlock();
-                }
+            else{
+                Thread.sleep(1000); // Simulação do tempo do corte
+                qtdCadeiras ++;
+                barbeiroDisponivel.release();
+                System.out.println(nomeCliente +" não foi atendido, barbearia cheia!");
             }
-
         }
     }
 
-    public static class Cliente implements Runnable{
-        private final Barbeiro barbeiro;
-        private final String nomeCliente;
+    private static class Cliente extends Thread{
+        private String nomeCliente;
+        private Barbearia barbearia;
 
-        public Cliente(Barbeiro barbeiro, String nomeCliente){
-            this.barbeiro = barbeiro;
+        public Cliente(String nomeCliente, Barbearia barbearia){
             this.nomeCliente = nomeCliente;
+            this.barbearia = barbearia;
         }
 
         public void run(){
             try {
-                barbeiro.atendeCliente(nomeCliente);
+                barbearia.novoCliente(nomeCliente);
             }
-            catch (InterruptedException e){
-                throw new RuntimeException(e);
-            }
+            catch (InterruptedException e){}
         }
-
     }
 
-    public static void main(String[] args) {
-        Barbeiro barbeiro = new Barbeiro();
+    public static void main(String[] args) throws InterruptedException {
+        Barbearia barbearia = new Barbearia(5);
 
-        Cliente cliente1 = new Cliente(barbeiro, "Cliente 1");
-        Cliente cliente2 = new Cliente(barbeiro, "Cliente 2");
-        Cliente cliente3 = new Cliente(barbeiro, "Cliente 3");
-        Cliente cliente4 = new Cliente(barbeiro, "Cliente 4");
-        Cliente cliente5 = new Cliente(barbeiro, "Cliente 5");
-
-        Thread t1 = new Thread(cliente1);
-        Thread t2 = new Thread(cliente2);
-        Thread t3 = new Thread(cliente3);
-        Thread t4 = new Thread(cliente4);
-        Thread t5 = new Thread(cliente5);
-
-        t1.start();
-        t2.start();
-        t3.start();
-        t4.start();
-        t5.start();
-
-
+        for(int i = 0; i < 10; i++){
+            Cliente cliente = new Cliente("Cliente " + i, barbearia);
+            cliente.start();
+        }
     }
 }
