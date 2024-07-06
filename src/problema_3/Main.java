@@ -32,7 +32,7 @@ public class Main {
 
             }else{
                 System.out.println(nomeCliente +" não foi atendido, barbearia cheia!");
-                Thread.sleep(1000); // Simulação do tempo do corte
+                Thread.sleep(100); // Simulação do tempo do corte
                 qtdCadeiras ++;
                 barbeiroDisponivel.release();
             }
@@ -40,15 +40,15 @@ public class Main {
             if(qtdCadeiras == qtdCadeirasInicial){
                 barbeiroDormindo.acquire();
                 System.out.println("Barbeiro dormindo");
-                Thread.sleep(1500);
+                Thread.sleep(150);
                 barbeiroDormindo.release();
             }
         }
     }
 
     private static class Cliente extends Thread{
-        private String nomeCliente;
-        private Barbearia barbearia;
+        private final String nomeCliente;
+        private final Barbearia barbearia;
 
         public Cliente(String nomeCliente, Barbearia barbearia){
             this.nomeCliente = nomeCliente;
@@ -59,14 +59,16 @@ public class Main {
             try {
                 barbearia.novoCliente(nomeCliente);
             }
-            catch (InterruptedException e){}
+            catch (InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
         Barbearia barbearia = new Barbearia(5);
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 103; i++){
             Cliente cliente = new Cliente("Cliente " + i, barbearia);
             cliente.start();
         }
