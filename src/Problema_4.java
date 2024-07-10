@@ -56,16 +56,15 @@ public class Problema_4 {
 
         public void run() {
             try {
+
                 // Tenta sentar
                 chairs.acquire();
                 System.out.println("Occupies a chair.");
                 conta.addLugar();
 
                 // Dá um tempo para comer
-                Thread.sleep(60);
                 // Se estiver cheio, só saem todos juntos
                 if (chairs.availablePermits() == 0) {
-                    Thread.sleep(60);
                     if (conta.getLugar() == 5) {
                         conta.remLugar();
                         conta.remLugar();
@@ -96,9 +95,11 @@ public class Problema_4 {
 
     public static void main(String[] args){
         Mesa conta = new Mesa();
+
         // Criando as pessoas
         for (int i = 1; i <= 103; i++) {
             Thread person = new Thread(new Person(conta));
+
             person.start();
         }
     }
