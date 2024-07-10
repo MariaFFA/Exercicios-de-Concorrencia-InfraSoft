@@ -1,19 +1,20 @@
 package src;
 
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Problema_5 {
     // Até 50 cadeiras simultaneamente
-    private static final Semaphore chairs = new Semaphore(10);
+    private static final Semaphore chairs = new Semaphore(50);
 
     // Para saber se a mesa está disponível para sentar
-    public static class Mesa {
+    public static class Ponto {
         private int lugares;
         private final Lock lock = new ReentrantLock();
 
-        public Mesa() {
+        public Ponto() {
             this.lugares = 0;
         }
 
@@ -22,78 +23,52 @@ public class Problema_5 {
             lock.lock();
             try {
                 lugares += 1;
+                System.out.println("No ponto: " + lugares);
             } finally {
                 lock.unlock();
             }
         }
 
-        // Remove um lugar
-        public void remLugar() throws InterruptedException {
+
+        public void encherOnibus() throws InterruptedException {
             lock.lock();
             try {
-                lugares -= 1;
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        public int getLugar() throws InterruptedException {
-            lock.lock();
-            try {
-                return lugares;
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        public void tentaSentar() throws InterruptedException {
-            chairs.acquire();
-
-
-            // Dá um tempo para comer
-            // Se estiver cheio, só saem todos juntos
-            if (chairs.availablePermits() == 0) {
-                if (getLugar() == 5) {
-                    remLugar();
-                    remLugar();
-                    remLugar();
-                    remLugar();
-                    remLugar();
-
-                    System.out.println("Leaves 5 chairs.");
-                    chairs.release();
-                    chairs.release();
-                    chairs.release();
-                    chairs.release();
-                    chairs.release();
-
+                // Caso sobre pessoas no ponto
+                if (lugares > 50) {
+                    chairs.acquire(50);
+                    lugares -= 50;
+                    // Quantos passageiros?
+                    System.out.println("Onibus com 50 passageiros");
+                // Caso esvazie a parada
+                } else {
+                    // Quantos passageiros?
+                    System.out.println("Onibus com " + lugares + " passageiros");
+                    lugares = 0;
+                    chairs.acquire(lugares);
                 }
-
-            } else {
-                // Libera a cadeira
-                System.out.println("Leaves a chair.");
-                remLugar();
-                chairs.release();
+            } finally {
+                lock.unlock();
             }
         }
-
 
         // Cada Pessoa
         static class Person implements Runnable {
-            private final Mesa conta;
+            private final Ponto conta;
 
-            public Person(Mesa conta) {
+            public Person(Ponto conta) {
                 this.conta = conta;
             }
 
             public void run() {
                 try {
                     // Simulando tempo aleatório até chegar na parada
-                    Thread.sleep(6);
+                    Random gerador = new Random();
+                    int tempoChegar = gerador.nextInt(25000);
+                    Thread.sleep(tempoChegar);
 
-                    // Tenta sentar
-                    chairs.acquire();
-                    System.out.println("Sentou: " + (10-chairs.availablePermits()));
+                    // Adicionar e quantidade de pessoas na parada
+                    conta.addLugar();
+
 
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -102,39 +77,40 @@ public class Problema_5 {
         }
 
         static class Onibus implements Runnable {
-            private final Mesa conta;
+            private final Ponto conta;
 
-            public Onibus(Mesa conta) {
+            public Onibus(Ponto conta) {
                 this.conta = conta;
             }
 
             public void run() {
                 try {
-                    // Simulando tempo entre 1 a 3 segundo par chegar vazio na parada
-                    Thread.sleep(600);
-
-                    // Quantos assentos vazios?
-                    System.out.println(chairs.availablePermits());
+                    // Chegou o Onibus
+                    conta.encherOnibus();
 
                     // Reiniciar onibus, esvaziando os assentos
-                    chairs.release(10- chairs.availablePermits());
+                    chairs.release(50 - chairs.availablePermits());
 
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(e);
                 }
+
             }
         }
 
-        public static void main(String[] args) {
-            Mesa conta = new Mesa();
+        public static void main(String[] args) throws InterruptedException {
+            Ponto conta = new Ponto();
 
             // Criando as pessoas
-            for (int i = 1; i <= 103; i++) {
+            for (int i = 1; i <= 500; i++) {
                 Thread person = new Thread(new Person(conta));
                 person.start();
             }
-            for (int i = 1; i <= 10; i++) {
+            for (int i = 1; i <= 15; i++) {
                 Thread onibus = new Thread(new Onibus(conta));
+                Random gerador = new Random();
+                int tempoVolta = gerador.nextInt((3000 - 1000) + 1) + 1000;
+                Thread.sleep(tempoVolta);
                 onibus.start();
             }
         }
