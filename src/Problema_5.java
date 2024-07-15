@@ -33,21 +33,11 @@ public class Problema_5 {
         public void encherOnibus() throws InterruptedException {
             lock.lock();
             try {
-                // Caso sobre pessoas no ponto
-                if (lugares > 50) {
-                    chairs.acquire(50);
-                    lugares -= 50;
-                    // Quantos passageiros?
-                    System.out.println("Onibus com 50 passageiros");
-                // Caso esvazie a parada
-                } else {
-                    // Quantos passageiros?
-                    System.out.println("Onibus com " + lugares + " passageiros");
-                    lugares = 0;
-                    chairs.acquire(lugares);
-                }
+                chairs.acquire(Math.min(lugares,50));
+                System.out.println("Onibus com " + Math.min(lugares,50) + " passageiros");
+                lugares -= Math.min(lugares,50);
             } finally {
-                lock.unlock();
+            lock.unlock();
             }
         }
 
