@@ -8,42 +8,51 @@ public class Main {
 
     public static class Banheiro{
         private final int capacidadeBanheiro;
-        private final char sexoDestinado;
         private int ocupacaoBanheiro;
 
-        public Banheiro(int capacidadeBanheiro, char sexoDestinado){
+        public Banheiro(int capacidadeBanheiro){
             this.capacidadeBanheiro = capacidadeBanheiro;
-            this.sexoDestinado = sexoDestinado;
         }
 
         Random numeroAleatorio = new Random();
 
         private final Lock lock = new ReentrantLock();
 
+        char[] pessoasBanheiro = new char[3];
+
+        public int verificaPessoasBanheiro(char[] pessoasBanheiro, char pessoaEntrar){
+
+            for(int i = 0; i < 3; i++){
+               if(pessoasBanheiro[i] != pessoaEntrar){
+                   return 0; // Há alguma pessoa do sexo oposto no banheiro
+               }
+            }
+            return 1; //Não há ninguém do sexo oposot no banheiro
+        }
+
         public void entraBanheiro(String nomePessoa, char sexo) throws InterruptedException{
 
-            System.out.println(nomePessoa +" do sexo "+sexo+" tentando entrar no banheiro "+ sexoDestinado +"...");
+            System.out.println(nomePessoa +" do sexo "+sexo+" tentando entrar no banheiro...");
             System.out.println();
 
-            if (sexo == sexoDestinado){
-                ocupacaoBanheiro ++;
-            }
+            int possivelEntrar = verificaPessoasBanheiro(pessoasBanheiro, sexo);
 
-            if(ocupacaoBanheiro == capacidadeBanheiro){
+            if(ocupacaoBanheiro == capacidadeBanheiro || possivelEntrar == 0){
+                System.out.println(nomePessoa+ " do sexo "+sexo+" não conseguiu entrar no banheiro!");
                 lock.lock();
             }
 
             try{
-                if(sexo == sexoDestinado){
-                    System.out.println(nomePessoa+ " do sexo "+sexo+" entrou no banheiro "+ sexoDestinado +"!");
-                }else{
-                    System.out.println(nomePessoa+ " do sexo "+sexo+" não conseguiu entrar no banheiro "+ sexoDestinado +"!");
+                for(int i = 0; i < 3; i++){
+                    pessoasBanheiro[i] = sexo;
                 }
+                System.out.println(nomePessoa+ " do sexo "+sexo+" entrou no banheiro!");
             }
             finally {
                 Thread.sleep(numeroAleatorio.nextInt(2000)); // Simula um tempo de uso do banheiro aleatório para cada pessoa
                 lock.unlock();
                 ocupacaoBanheiro --;
+                pessoasBanheiro[ocupacaoBanheiro] = ' ';
             }
         }
 
@@ -74,10 +83,7 @@ public class Main {
 
     public static void main(String[] args){
 
-        Banheiro banheiroF = new Banheiro(3, 'f');
-        Banheiro banheiroM = new Banheiro(3, 'm');
-
-        Random escolhaBanheiro = new Random();
+        Banheiro banheiro = new Banheiro(3);
 
         Random indiceAleatorio = new Random();
 
@@ -89,10 +95,7 @@ public class Main {
             int idx = indiceAleatorio.nextInt(2);
             char sexo = (idx == 0) ? sexo1 : sexo2;
 
-            int idxBanheiro = escolhaBanheiro.nextInt(2);
-            Banheiro banheiroEscolhido = (idxBanheiro == 0) ? banheiroF : banheiroM;
-
-            Pessoa pessoa = new Pessoa("Pessoa "+i, sexo, banheiroEscolhido);
+            Pessoa pessoa = new Pessoa("Pessoa "+i, sexo, banheiro);
             pessoa.start();
         }
 
