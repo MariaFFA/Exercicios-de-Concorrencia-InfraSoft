@@ -41,7 +41,7 @@ public class Main {
             int possivelEntrar = verificaPessoasBanheiro(pessoasBanheiro, sexo);
 
             if(ocupacaoBanheiro == capacidadeBanheiro || possivelEntrar == 0){
-                Thread.sleep(numeroAleatorio.nextInt(2000)); // Simula um tempo de uso do banheiro aleatório
+                Thread.sleep(numeroAleatorio.nextInt(1000,3000)); // Simula um tempo de uso do banheiro aleatório
                 ocupacaoBanheiro -= numeroAleatorio.nextInt(1, 4);
                 System.out.println(nomePessoa +" do sexo "+sexo+" não conseguiu entrar no banheiro");
                // System.out.println("Capacidade banheiro: "+(ocupacaoBanheiro));
@@ -88,26 +88,23 @@ public class Main {
     }
 
 
-    public static void main(String[] args){
+    public static void main(String[] args)throws InterruptedException{
 
         Banheiro banheiro = new Banheiro(3);
 
-        Random indiceAleatorio = new Random();
+        Random random = new Random();
 
         char sexo1 = 'f';
         char sexo2 = 'm';
 
         for(int i = 0; i < 10; i++){
 
-            int idx = indiceAleatorio.nextInt(2);
+            int idx = random.nextInt(2);
             char sexo = (idx == 0) ? sexo1 : sexo2;
 
             Pessoa pessoa = new Pessoa("Pessoa "+i, sexo, banheiro);
+            Thread.sleep(random.nextInt(1000, 2000));
             pessoa.start();
         }
-
-
     }
-
-
 }
