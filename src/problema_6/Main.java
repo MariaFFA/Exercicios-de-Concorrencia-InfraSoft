@@ -42,12 +42,14 @@ public class Main {
 
             if(ocupacaoBanheiro == capacidadeBanheiro || possivelEntrar == 0){
                 Thread.sleep(numeroAleatorio.nextInt(2000)); // Simula um tempo de uso do banheiro aleatório
+                ocupacaoBanheiro -= numeroAleatorio.nextInt(1, 4);
                 System.out.println(nomePessoa +" do sexo "+sexo+" não conseguiu entrar no banheiro");
+               // System.out.println("Capacidade banheiro: "+(ocupacaoBanheiro));
                 System.out.println();
 
-                ocupacaoBanheiro--;
-
                 if(ocupacaoBanheiro == 0){
+                    System.out.println("Banheiro vazio!");
+                    System.out.println();
                     pessoasBanheiro[0] = ' ';
                 }
                 banheiroDisponivel.release();
