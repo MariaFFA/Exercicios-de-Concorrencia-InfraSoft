@@ -97,13 +97,13 @@ public class Main {
         char sexo1 = 'f';
         char sexo2 = 'm';
 
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 100; i++){
 
             int idx = random.nextInt(2);
             char sexo = (idx == 0) ? sexo1 : sexo2;
 
             Pessoa pessoa = new Pessoa("Pessoa "+i, sexo, banheiro);
-            Thread.sleep(random.nextInt(1000, 2000));
+            Thread.sleep(random.nextInt(100, 500));
             pessoa.start();
         }
     }
